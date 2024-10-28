@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,14 +8,17 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .no-results {
-            display: none; /* Ocultar inicialmente el mensaje de no resultados */
+            display: none;
+            /* Ocultar inicialmente el mensaje de no resultados */
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="#">Mi Tienda</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -36,57 +40,71 @@
         <h1>Listado de Productos</h1>
 
         <!-- Mensajes de éxito/error -->
+ 
+
         @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @elseif(session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+            <div id="success-message" class="alert alert-success">
+                {{ session('success') }}
+            </div>
         @endif
+
+        <script>
+            // Espera 4 segundos y luego oculta el mensaje de éxito
+            setTimeout(function () {
+                var message = document.getElementById('success-message');
+                if (message) {
+                    message.style.display = 'none';
+                }
+            }, 4000); // 4000 ms = 4 segundos
+        </script>
 
         <!-- Campo de búsqueda -->
         <div class="form-group">
-            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre de producto" onkeyup="filterProducts()">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre de producto"
+                onkeyup="filterProducts()">
         </div>
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Marca</th>
-                    <th>Categoría</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="productTableBody">
-                @if($productos && count($productos) > 0) <!-- Verificar si hay productos -->
-                    @foreach($productos as $key => $producto)
-                        <tr>
-                            <td>{{ $producto['name'] }}</td>
-                            <td>{{ $producto['brand'] }}</td>
-                            <td>{{ $producto['category'] }}</td>
-                            <td>{{ $producto['price'] }}</td>
-                            <td>{{ $producto['stock'] }}</td>
-                            <td>
-                                <!-- Botón para editar el producto -->
-                                <a href="{{ route('products.create', $key) }}">Editar</a> <!-- Cambia $producto['key'] a $key -->
-
-                                <!-- Formulario para eliminar el producto -->
-                                <form action="{{ route('products.delete', $key) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                @else
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td colspan="6" class="text-center">No hay productos disponibles</td>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
                     </tr>
-                @endif
-            </tbody>
-        </table>
+                </thead>
+                <tbody id="productTableBody">
+                    @if($productos && count($productos) > 0) <!-- Verificar si hay productos -->
+                        @foreach($productos as $key => $producto)
+                            <tr>
+                                <td>{{ $producto['name'] }}</td>
+                                <td>{{ $producto['brand'] }}</td>
+                                <td>{{ $producto['category'] }}</td>
+                                <td>{{ $producto['price'] }}</td>
+                                <td>{{ $producto['stock'] }}</td>
+                                <td>
+                                    <a href="{{ route('products.edit', $key) }}" class="btn btn-warning">Editar</a>
+
+                                    <form action="{{ route('products.delete', $key) }}" method="POST" style="display:inline;"
+                                        onsubmit="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="6" class="text-center">No hay productos disponibles</td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
 
         <div class="no-results text-center">
             <h5>No se encontraron resultados.</h5>
@@ -104,7 +122,6 @@
             const rows = table.getElementsByTagName('tr');
             let hasResults = false;
 
-            // Iterar sobre las filas de la tabla y mostrar/ocultar según la búsqueda
             for (let i = 0; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName('td');
                 if (cells.length > 0) {
@@ -123,4 +140,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -2,64 +2,69 @@
 
 namespace App\Models;
 
-use Kreait\Firebase\Database; // Asegúrate de importar la clase de la base de datos
 use Kreait\Firebase\Factory;
+use Kreait\Firebase\Database;
 
 class Producto
 {
     protected $database;
+    protected $dbname = 'productos';
 
     public function __construct()
     {
-        // Inicializa la conexión con Firebase
-        $this->database = (new Factory)
+        // Inicializar Firebase
+        $this->database = (new Factory())
             ->withServiceAccount(storage_path('app/forgedream-firebase-adminsdk-1jxfy-ba1ad72f1f.json'))
             ->withDatabaseUri('https://forgedream-default-rtdb.firebaseio.com/')
             ->createDatabase();
     }
 
-    // Método para agregar un producto
-    public function add($data)
+    /**
+     * Agregar un nuevo producto a Firebase.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function add(array $data)
     {
-        // Validación básica
-        if (empty($data['name']) || empty($data['brand']) || empty($data['category']) || empty($data['price']) || !isset($data['stock'])) {
-            throw new \InvalidArgumentException("Todos los campos son requeridos.");
-        }
-        
-        // Agregar el producto a la base de datos
-        return $this->database->getReference('productos')->push($data);
+        // Crear un nuevo registro en la colección 'productos'
+        $this->database->getReference($this->dbname)->push($data);
     }
-    
-    // Método para obtener todos los productos
+
+    /**
+     * Obtener todos los productos desde Firebase.
+     *
+     * @return array
+     */
     public function all()
     {
-        // Recuperar todos los productos y manejar la posible ausencia de datos
-        $productos = $this->database->getReference('productos')->getValue();
+        // Obtener todos los productos
+        $productos = $this->database->getReference($this->dbname)->getValue();
         return $productos ? $productos : [];
     }
 
-    // Método para encontrar un producto por su clave
-    public function find($key)
-    {
-        // Recuperar el producto por clave y manejar la posible ausencia de datos
-        $producto = $this->database->getReference('productos/' . $key)->getValue();
-        return $producto ? $producto : null; // Retorna null si no se encuentra
-    }
-
-    // Método para actualizar un producto
-    public function update($key, $data)
-    {
-        // Validación básica
-        if (empty($data['name']) || empty($data['brand']) || empty($data['category']) || empty($data['price']) || !isset($data['stock'])) {
-            throw new \InvalidArgumentException("Todos los campos son requeridos.");
-        }
-
-        return $this->database->getReference('productos/' . $key)->update($data);
-    }
-
-    // Método para eliminar un producto
+    /**
+     * Eliminar un producto por su clave (key).
+     *
+     * @param string $key
+     * @return void
+     */
     public function delete($key)
     {
-        return $this->database->getReference('productos/' . $key)->remove();
+        // Eliminar un producto por su clave en Firebase
+        $this->database->getReference($this->dbname . '/' . $key)->remove();
+    }
+
+    /**
+     * Obtener un producto por su clave (key).
+     *
+     * @param string $key
+     * @return array|null
+     */
+    public function get($key)
+    {
+        // Obtener un producto específico por su clave
+        $producto = $this->database->getReference($this->dbname . '/' . $key)->getValue();
+        return $producto;
     }
 }
