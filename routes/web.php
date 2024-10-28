@@ -3,8 +3,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirebaseTestController;
 use Kreait\Firebase\Factory;
 use App\Http\Controllers\ProductoController;
+use App\Models\Producto;
 
-Route::get('/', function () {
+Route::get('/conn', function () {
     try {
         $firebase = (new Factory)->withServiceAccount(storage_path('app/forgedream-firebase-adminsdk-1jxfy-ba1ad72f1f.json'));
         $auth = $firebase->createAuth();
@@ -15,12 +16,20 @@ Route::get('/', function () {
     }
 });
 
+Route::get('/', function () {
+    $productoModel = new Producto(); // Inicializa el modelo
+    $productos = $productoModel->all(); // Obtén todos los productos
+
+    return view('products.productos', compact('productos')); // Pasa la variable a la vista
+});
+
 // Ruta para la prueba de Firebase
 Route::get('/firebase-test', [FirebaseTestController::class, 'index']);
 
 Route::prefix('products')->group(function () {
     Route::get('/create', [ProductoController::class, 'create'])->name('products.create'); // Ruta para crear un producto
     Route::post('/store', [ProductoController::class, 'addProduct'])->name('products.store'); // Guardar nuevo producto
+    
     Route::get('/productos', [ProductoController::class, 'productos'])->name('products.productos'); // Listar productos
    
     Route::get('/{key}/editar', [ProductoController::class, 'edit'])->name('products.edit'); // Ruta para editar producto

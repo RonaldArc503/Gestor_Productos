@@ -9,7 +9,12 @@
     <style>
         .no-results {
             display: none;
-            /* Ocultar inicialmente el mensaje de no resultados */
+        }
+
+        /* Estilo para el botón activo (verde azulado) */
+        .active-category {
+            background-color: #20c997;
+            color: white;
         }
     </style>
 </head>
@@ -40,8 +45,6 @@
         <h1>Gestor de Productos</h1>
 
         <!-- Mensajes de éxito/error -->
- 
-
         @if(session('success'))
             <div id="success-message" class="alert alert-success">
                 {{ session('success') }}
@@ -64,6 +67,18 @@
                 onkeyup="filterProducts()">
         </div>
 
+        <!-- Botones de categorías -->
+       <!-- Botones de categorías -->
+<div class="form-group">
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('', this)">Todas</button>
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('Alimentos', this)">Alimentos</button>
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('Electrónica', this)">Electrónica</button>
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('Ropa', this)">Ropa</button>
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('Hogar', this)">Hogar</button>
+    <button class="btn btn-secondary category-btn" onclick="filterByCategory('Deportes', this)">Deportes</button>
+</div>
+
+
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -77,7 +92,7 @@
                     </tr>
                 </thead>
                 <tbody id="productTableBody">
-                    @if($productos && count($productos) > 0) <!-- Verificar si hay productos -->
+                    @if($productos && count($productos) > 0)
                         @foreach($productos as $key => $producto)
                             <tr>
                                 <td>{{ $producto['name'] }}</td>
@@ -115,30 +130,57 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        function filterProducts() {
-            const input = document.getElementById('searchInput');
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById('productTableBody');
-            const rows = table.getElementsByTagName('tr');
-            let hasResults = false;
+    let selectedCategory = ''; // Variable para almacenar la categoría seleccionada
 
-            for (let i = 0; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName('td');
-                if (cells.length > 0) {
-                    const name = cells[0].textContent.toLowerCase(); // Nombre del producto
-                    if (name.indexOf(filter) > -1) {
-                        rows[i].style.display = ""; // Mostrar la fila
-                        hasResults = true;
-                    } else {
-                        rows[i].style.display = "none"; // Ocultar la fila
-                    }
+    function filterProducts() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('productTableBody');
+        const rows = table.getElementsByTagName('tr');
+        let hasResults = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 0) {
+                const name = cells[0].textContent.toLowerCase();
+                const category = cells[2].textContent.toLowerCase();
+
+                // Comprobar si el producto coincide con la búsqueda por nombre y categoría
+                if (name.indexOf(filter) > -1 && 
+                    (selectedCategory === '' || category === selectedCategory.toLowerCase())) {
+                    rows[i].style.display = ""; // Mostrar la fila
+                    hasResults = true;
+                } else {
+                    rows[i].style.display = "none"; // Ocultar la fila
                 }
             }
-
-            // Mostrar/ocultar el mensaje de no resultados
-            document.querySelector('.no-results').style.display = hasResults ? 'none' : 'block';
         }
-    </script>
+
+        // Mostrar/ocultar el mensaje de no resultados
+        document.querySelector('.no-results').style.display = hasResults ? 'none' : 'block';
+    }
+
+    function filterByCategory(category, button) {
+    selectedCategory = category;
+
+    // Remover la clase activa de todos los botones
+    const buttons = document.getElementsByClassName('category-btn');
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active-category');
+        buttons[i].classList.remove('btn-primary'); // Asegurar que no tiene la clase btn-primary
+        buttons[i].classList.add('btn-secondary');  // Reestablecer btn-secondary
+    }
+
+    // Añadir la clase activa al botón que se ha seleccionado
+    button.classList.add('active-category');
+    button.classList.remove('btn-secondary');  // Quitar el estilo por defecto
+    button.classList.add('btn-primary');       // Añadir el estilo activo
+
+    filterProducts(); // Actualizar los productos mostrados después de cambiar la categoría
+}
+
+</script>
+
 </body>
 
 </html>
