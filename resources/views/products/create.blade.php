@@ -23,7 +23,7 @@
                 <a class="nav-link" href="{{ route('products.create') }}">Agregar Producto</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Contacto</a>
+                <a class="nav-link" href="#">Tienda Vista</a>
             </li>
         </ul>
     </div>
@@ -46,15 +46,7 @@
         </div>
     @endif
 
-    <!-- Mostrar datos del producto si está definido -->
-    @if(isset($producto))
-        <p><strong>Datos del producto:</strong></p>
-        <p><strong>Nombre:</strong> {{ $producto['name'] }}</p>
-        <p><strong>Marca:</strong> {{ $producto['brand'] }}</p>
-        <p><strong>Categoría:</strong> {{ $producto['category'] }}</p>
-        <p><strong>Precio:</strong> {{ $producto['price'] }}</p>
-        <p><strong>Stock:</strong> {{ $producto['stock'] }}</p>
-    @endif
+   
 
     <form action="{{ isset($producto) ? route('products.update', $key) : route('products.store') }}" method="POST">
         @csrf

@@ -30,14 +30,14 @@
                     <a class="nav-link" href="{{ route('products.create') }}">Agregar Producto</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Contacto</a>
+                    <a class="nav-link" href="#">Tienda Vista</a>
                 </li>
             </ul>
         </div>
     </nav>
 
     <div class="container mt-5">
-        <h1>Listado de Productos</h1>
+        <h1>Gestor de Productos</h1>
 
         <!-- Mensajes de éxito/error -->
  
@@ -55,7 +55,7 @@
                 if (message) {
                     message.style.display = 'none';
                 }
-            }, 4000); // 4000 ms = 4 segundos
+            }, 2000); // 4000 ms = 4 segundos
         </script>
 
         <!-- Campo de búsqueda -->
