@@ -20,5 +20,12 @@ Route::get('/', function () {
 Route::get('/firebase-test', [FirebaseTestController::class, 'index']);
 
 // Rutas para agregar productos
-Route::get('/products/create', [ProductoController::class, 'create'])->name('products.create'); // Ruta para mostrar el formulario
-Route::post('/products', [ProductoController::class, 'addProduct'])->name('products.store'); // Ruta para procesar el formulario
+// Rutas para agregar productos
+Route::get('/products/create/{key?}', [ProductoController::class, 'create'])->name('products.create'); // Ruta para mostrar el formulario
+Route::post('/products/store', [ProductoController::class, 'addProduct'])->name('products.store');
+Route::put('/products/update/{key}', [ProductoController::class, 'update'])->name('products.update');
+Route::delete('/productos/{key}', [ProductoController::class, 'deleteProduct'])->name('products.delete');
+Route::get('/products/productos', [ProductoController::class, 'productos'])->name('products.productos');
+
+// Ruta para mostrar productos
+Route::get('/products/search', [ProductoController::class, 'search'])->name('products.search'); // Ruta para buscar productos
