@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Producto;
 use Kreait\Firebase\Factory;
@@ -48,9 +49,7 @@ class ProductoController extends Controller
             'brand' => 'required|string',
             'category' => 'required|string',
             'price' => 'required|numeric',
-            'cantidad' => 'required|integer', // Nuevo campo 'cantidad'
-            'stock' => 'required|integer',
-           
+            'cantidad' => 'required|integer',
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación de la imagen
         ]);
 
@@ -73,15 +72,17 @@ class ProductoController extends Controller
             $photoUrl = $bucket->object('product_photos/' . $filename)->signedUrl(new \DateTime('9999-12-31'));
         }
 
+        // Determinar el estado del stock
+        $stockStatus = $request->cantidad == 0 ? 'agotado' : 'en stock';
+
         // Agregar el producto usando el modelo y guardando la URL de la imagen
         $this->productoModel->add([
             'name' => strtoupper($request->name), // Convertir a mayúsculas
             'brand' => $request->brand,
             'category' => $request->category,
             'price' => $request->price,
-            'cantidad' => $request->cantidad, // Guardar el campo 'cantidad'
-            'stock' => $request->stock,
-           
+            'cantidad' => $request->cantidad,
+            'stock' => $stockStatus, // Guardar el estado del stock
             'photo_url' => $photoUrl, // Guardar la URL de la foto
         ]);
 
@@ -121,8 +122,7 @@ class ProductoController extends Controller
             'brand' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'price' => 'required|numeric',
-            'stock' => 'required|integer',
-            'cantidad' => 'required|integer',  // Add validation for cantidad
+            'cantidad' => 'required|integer', // Add validation for cantidad
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -145,14 +145,17 @@ class ProductoController extends Controller
             $photoUrl = $bucket->object('product_photos/' . $filename)->signedUrl(new \DateTime('9999-12-31'));
         }
 
+        // Determinar el estado del stock
+        $stockStatus = $request->cantidad == 0 ? 'agotado' : 'en stock';
+
         // Actualizar el producto en Firebase usando el modelo, incluyendo la URL de la imagen si se ha subido una nueva
         $updateData = [
             'name' => strtoupper($request->input('name')),
-        'brand' => $request->input('brand'),
-        'category' => $request->input('category'),
-        'price' => $request->input('price'),
-        'stock' => $request->input('stock'),
-        'cantidad' => $request->input('cantidad'),  // Update cantidad
+            'brand' => $request->input('brand'),
+            'category' => $request->input('category'),
+            'price' => $request->input('price'),
+            'cantidad' => $request->input('cantidad'),
+            'stock' => $stockStatus, // Actualiza el estado del stock
         ];
 
         if ($photoUrl) {

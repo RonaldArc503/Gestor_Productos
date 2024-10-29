@@ -6,31 +6,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ isset($producto) ? 'Editar Producto' : 'Agregar Producto' }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
 </head>
 
 <body>
 
     <!-- Menú de navegación -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Mi Tienda</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('products.productos') }}">Productos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('products.create') }}">Agregar Producto</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Tienda Vista</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#" style="font-weight: bold;">Mi Tienda</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('products.productos') }}">Productos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('products.create') }}">Agregar Producto</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tienda Vista</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Iniciar Sesión</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
 
     <div class="container mt-5">
         <h1>{{ isset($producto) ? 'Editar Producto' : 'Agregar Producto' }}</h1>
@@ -48,8 +54,6 @@
                 </ul>
             </div>
         @endif
-
-
 
         <form action="{{ isset($producto) ? route('products.update', $key) : route('products.store') }}" method="POST" enctype="multipart/form-data">
 
@@ -79,11 +83,9 @@
                 <select class="form-control" id="category" name="category" required>
                     <option value="">Seleccionar categoría</option>
                     <option value="Electrónica" {{ (isset($producto) && $producto['category'] == 'Electrónica') ? 'selected' : '' }}>Electrónica</option>
-                    <option value="Ropa" {{ (isset($producto) && $producto['category'] == 'Ropa') ? 'selected' : '' }}>
-                        Ropa</option>
+                    <option value="Ropa" {{ (isset($producto) && $producto['category'] == 'Ropa') ? 'selected' : '' }}>Ropa</option>
                     <option value="Alimentos" {{ (isset($producto) && $producto['category'] == 'Alimentos') ? 'selected' : '' }}>Alimentos</option>
-                    <option value="Hogar" {{ (isset($producto) && $producto['category'] == 'Hogar') ? 'selected' : '' }}>
-                        Hogar</option>
+                    <option value="Hogar" {{ (isset($producto) && $producto['category'] == 'Hogar') ? 'selected' : '' }}>Hogar</option>
                     <option value="Deportes" {{ (isset($producto) && $producto['category'] == 'Deportes') ? 'selected' : '' }}>Deportes</option>
                 </select>
             </div>
@@ -95,16 +97,17 @@
             </div>
 
             <div class="form-group">
-                <label for="stock">Cantidad:</label>
+                <label for="cantidad">Cantidad:</label>
                 <input type="number" class="form-control" id="cantidad" name="cantidad"
                     value="{{ old('cantidad', $producto['cantidad'] ?? '') }}" required>
             </div>
 
             <div class="form-group">
-                <label for="stock">Stock:</label>
-                <input type="number" class="form-control" id="stock" name="stock"
-                    value="{{ old('stock', $producto['stock'] ?? '') }}" required>
-            </div>
+    <label for="stock">Estado de Stock:</label>
+    <input type="text" class="form-control" id="stock" name="stock" 
+           value="{{ isset($producto) ? $producto['stock'] : '' }}" disabled>
+</div>
+
 
             <button type="submit"
                 class="btn btn-primary">{{ isset($producto) ? 'Actualizar Producto' : 'Agregar Producto' }}</button>

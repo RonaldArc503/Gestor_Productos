@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('category'); // Categoría del producto
             $table->decimal('price', 10, 2); // Precio del product
             $table->integer('cantidad');
-            $table->integer('stock'); // Stock del producto
+            $table->enum('stock', ['en stock', 'agotado'])->default('en stock'); // Estado del stock
             $table->timestamps(); // Campos de fecha y hora de creación y actualización
         });
     }
