@@ -1,18 +1,27 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Storage;
 
 class ProductoController extends Controller
 {
     protected $productoModel;
+    protected $storage;
 
     public function __construct()
     {
         // Inicializa el modelo de Producto que interactúa con Firebase
         $this->productoModel = new Producto();
+
+        // Inicializa Firebase usando el archivo JSON de credenciales
+        $firebase = (new Factory)
+            ->withServiceAccount(storage_path('app/forgedream-firebase-adminsdk-1jxfy-ba1ad72f1f.json'));
+
+        // Crear la instancia de Storage
+        $this->storage = $firebase->createStorage();
     }
 
     /**
@@ -22,7 +31,6 @@ class ProductoController extends Controller
      */
     public function create()
     {
-        // Devuelve la vista de creación de producto
         return view('products.create', ['producto' => null, 'key' => null]);
     }
 
@@ -40,16 +48,41 @@ class ProductoController extends Controller
             'brand' => 'required|string',
             'category' => 'required|string',
             'price' => 'required|numeric',
+            'cantidad' => 'required|integer', // Nuevo campo 'cantidad'
             'stock' => 'required|integer',
+           
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación de la imagen
         ]);
 
-        // Agregar el producto usando el modelo
+        // Manejar la subida de la imagen
+        $photoUrl = null;
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Cargar la imagen en Firebase Storage
+            $bucket = $this->storage->getBucket();
+            $bucket->upload(
+                fopen($file->getRealPath(), 'r'),
+                [
+                    'name' => 'product_photos/' . $filename,
+                ]
+            );
+
+            // Obtener la URL pública de la imagen
+            $photoUrl = $bucket->object('product_photos/' . $filename)->signedUrl(new \DateTime('9999-12-31'));
+        }
+
+        // Agregar el producto usando el modelo y guardando la URL de la imagen
         $this->productoModel->add([
-            'name' => $request->name,
+            'name' => strtoupper($request->name), // Convertir a mayúsculas
             'brand' => $request->brand,
             'category' => $request->category,
             'price' => $request->price,
+            'cantidad' => $request->cantidad, // Guardar el campo 'cantidad'
             'stock' => $request->stock,
+           
+            'photo_url' => $photoUrl, // Guardar la URL de la foto
         ]);
 
         // Redirigir a la lista de productos con un mensaje de éxito
@@ -64,15 +97,12 @@ class ProductoController extends Controller
      */
     public function edit($key)
     {
-        // Obtener el producto desde Firebase usando el modelo
         $producto = $this->productoModel->get($key);
-    
-        // Verificar si el producto fue encontrado
+
         if ($producto === null) {
             return redirect()->route('products.productos')->with('error', 'Producto no encontrado.');
         }
-    
-        // Retorna la vista de edición con los datos del producto
+
         return view('products.create', compact('producto', 'key'));
     }
 
@@ -92,16 +122,44 @@ class ProductoController extends Controller
             'category' => 'required|string|max:255',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
+            'cantidad' => 'required|integer',  // Add validation for cantidad
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Actualizar el producto en Firebase usando el modelo
-        $this->productoModel->update($key, [
-            'name' => $request->input('name'),
-            'brand' => $request->input('brand'),
-            'category' => $request->input('category'),
-            'price' => $request->input('price'),
-            'stock' => $request->input('stock'),
-        ]);
+        // Manejar la subida de la imagen si existe
+        $photoUrl = null;
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            // Cargar la imagen en Firebase Storage
+            $bucket = $this->storage->getBucket();
+            $bucket->upload(
+                fopen($file->getRealPath(), 'r'),
+                [
+                    'name' => 'product_photos/' . $filename,
+                ]
+            );
+
+            // Obtener la URL pública de la imagen
+            $photoUrl = $bucket->object('product_photos/' . $filename)->signedUrl(new \DateTime('9999-12-31'));
+        }
+
+        // Actualizar el producto en Firebase usando el modelo, incluyendo la URL de la imagen si se ha subido una nueva
+        $updateData = [
+            'name' => strtoupper($request->input('name')),
+        'brand' => $request->input('brand'),
+        'category' => $request->input('category'),
+        'price' => $request->input('price'),
+        'stock' => $request->input('stock'),
+        'cantidad' => $request->input('cantidad'),  // Update cantidad
+        ];
+
+        if ($photoUrl) {
+            $updateData['photo_url'] = $photoUrl; // Actualiza la URL de la foto si se ha subido una nueva
+        }
+
+        $this->productoModel->update($key, $updateData);
 
         // Redirigir a la lista de productos con un mensaje de éxito
         return redirect()->route('products.productos')->with('success', 'Producto actualizado exitosamente.');
@@ -117,7 +175,6 @@ class ProductoController extends Controller
         // Obtener todos los productos desde Firebase usando el modelo
         $productos = $this->productoModel->all();
 
-        // Retorna la vista con la lista de productos
         return view('products.productos', compact('productos'));
     }
 
