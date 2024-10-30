@@ -11,6 +11,9 @@
             background-color: #343a40; /* Fondo oscuro */
             color: white; /* Color del texto */
         }
+        #searchInput{
+            border-radius: 50px;
+        }
     </style>
 </head>
 
@@ -110,6 +113,8 @@
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger">Eliminar</button>
                                 </form>
+                                <!-- Botón para generar QR -->
+                                <button class="btn btn-info" onclick="generateQRCode('{{ $producto['name'] }}', '{{ $producto['price'] }}')">QR</button>
                             </td>
                         </tr>
                     @endforeach
@@ -127,9 +132,30 @@
     </div>
 </div>
 
+<!-- Modal para mostrar el QR -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrModalLabel">Código QR del Producto</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <canvas id="qrCanvas"></canvas>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 
 <script>
     let selectedCategory = ''; // Variable para almacenar la categoría seleccionada
@@ -159,26 +185,31 @@
         }
 
         // Show/hide the no results message
-        document.querySelector('.no-results').style.display = hasResults ? 'none' : 'block';
+        document.querySelector('.no-results').style.display = hasResults ? 'none' : '';
     }
 
     function filterByCategory(category, button) {
-        selectedCategory = category;
-        console.log(`Selected category: ${selectedCategory}`); // Debugging line
+        selectedCategory = category; // Update the selected category
+        filterProducts(); // Filter products after category selection
 
-        // Remove the active class from all buttons
+        // Remove active class from all category buttons
         const buttons = document.querySelectorAll('.category-btn');
-        buttons.forEach(btn => {
-            btn.classList.remove('active-category');
+        buttons.forEach(btn => btn.classList.remove('active-category'));
+
+        // Add active class to the selected category button
+        button.classList.add('active-category');
+    }
+
+    function generateQRCode(productName, productPrice) {
+        const qr = new QRious({
+            element: document.getElementById('qrCanvas'),
+            size: 200,
+            value: `Producto: ${productName}\nPrecio: ${productPrice}`
         });
 
-        // Add the active class to the clicked button
-        button.classList.add('active-category');
-
-        // Call the filterProducts function to apply the filter
-        filterProducts();
+        // Mostrar el modal
+        $('#qrModal').modal('show');
     }
 </script>
-
 </body>
 </html>
