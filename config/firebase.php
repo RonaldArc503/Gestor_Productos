@@ -10,12 +10,16 @@ return [
      */
 
     'default' => env('FIREBASE_PROJECT', 'forgedream'),
-
+    'project' => env('FIREBASE_PROJECT'),
+    'credentials' => env('FIREBASE_CREDENTIALS'),
+    'database_url' => env('FIREBASE_DATABASE_URL'),
     /*
      * ------------------------------------------------------------------------
      * Firebase project configurations
      * ------------------------------------------------------------------------
      */
+
+     
 
     'projects' => [
         'forgedream' => [

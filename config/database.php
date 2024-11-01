@@ -16,7 +16,9 @@ return [
     */
 
     'default' => 'firebase',
-
+    'project' => env('FIREBASE_PROJECT'),
+    'credentials' => env('FIREBASE_CREDENTIALS'),
+    'database_url' => env('FIREBASE_DATABASE_URL'),
     /*
     |----------------------------------------------------------------------
     | Database Connections

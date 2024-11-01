@@ -195,4 +195,42 @@ class ProductoController extends Controller
         // Redirigir a la lista de productos con un mensaje de éxito
         return redirect()->route('products.productos')->with('success', 'Producto eliminado con éxito');
     }
+
+    public function mostrarProductosGaleria()
+{
+    // Obtener todos los productos desde Firebase usando el modelo
+    $productos = $this->productoModel->all();
+
+    return view('products.app', compact('productos'));
 }
+
+
+
+
+
+public function showOrderConfig($key)
+{
+    // Obtener el producto por su clave
+    $producto = $this->productoModel->get($key);
+
+    if ($producto === null) {
+        return redirect()->route('products.productos')->with('error', 'Producto no encontrado.');
+    }
+
+    // Pasar los datos del producto a la vista
+    return view('products.config', ['producto' => $producto]);
+}
+
+/**
+ * Mostrar el formulario para configurar el pedido de un producto.
+ *
+ * @param string $key
+ * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+ */
+
+
+
+
+}
+
+

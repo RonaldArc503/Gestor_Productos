@@ -1,9 +1,12 @@
 <?php
+use App\Mail\PedidosMail;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\FirebaseTestController;
 use Kreait\Firebase\Factory;
 use App\Http\Controllers\ProductoController;
 use App\Models\Producto;
+use App\Http\Controllers\MailController;
 
 Route::get('/conn', function () {
     try {
@@ -20,7 +23,7 @@ Route::get('/', function () {
     $productoModel = new Producto(); // Inicializa el modelo
     $productos = $productoModel->all(); // Obtén todos los productos
 
-    return view('products.productos', compact('productos')); // Pasa la variable a la vista
+    return view('products.app', compact('productos')); // Pasa la variable a la vista
 });
 
 // Ruta para la prueba de Firebase
@@ -39,3 +42,14 @@ Route::prefix('products')->group(function () {
     Route::get('/search', [ProductoController::class, 'search'])->name('products.search'); // Buscar productos
 });
 
+
+Route::post('/send-mail', [MailController::class, 'sendMail'])->name('send.mail');
+
+Route::get('products/config/{key}', [MailController::class, 'showConfig'])->name('products.config');
+
+
+Route::post('/set-default-order', [MailController::class, 'setDefaultOrder'])->name('set.default.order');
+Route::post('/check-default-orders', [MailController::class, 'checkDefaultOrders'])->name('check.default.orders');
+Route::post('/save-order', [MailController::class, 'saveOrder'])->name('save.order');
+Route::post('/update-default-order-quantity/{productName}/{newQuantity}', [MailController::class, 'updateDefaultOrderQuantity'])
+    ->name('update.default.order.quantity');
